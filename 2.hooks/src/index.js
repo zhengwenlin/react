@@ -1,44 +1,79 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-let lastState;
+//用于存放组件所有的状态（useState创建的、useMemo创建的、useCallback创建的）
+let hookStates = [] 
+let hookIndex = 0 // 指针
 function useState(initalState) {
-   let state = lastState || (typeof initalState == 'function' ? initalState() : initalState)
-   
+  hookStates[hookIndex] = hookStates[hookIndex] || (typeof initalState == 'function' ? initalState() : initalState)
+  //缓存调用当前useState时的指针，因为每次调用useState时，指针都会向后移动，不固定，所以先缓存
+  //然后再调用setState的时候，能通过缓存的指针找到对应的state然后更新
+  let currentIndex = hookIndex
    function setState(newState){
-    
      if(typeof newState === 'function'){
          newState = newState()
      }
-     if(!Object.is(newState, lastState)){
-        lastState = newState
+     if(!Object.is(newState, hookStates[currentIndex])){
+        hookStates[currentIndex] = newState
         render()
      }
      
    }
-   return [state, setState]
+   return [hookStates[hookIndex++], setState]
 }
-let lastCallback, lastCallbackDeps;
+
 /**
- * 核心：缓存对象
- * @param {*} initalCallback 
+ * 核心：缓存对象,减少对象的创建次数
+ * - 和useState一样，也是放到了hookStates数组中去
+ * @param {*} callback 函数
  * @param {*} deps 依赖项 数组
  */
-function useMemo(initalCallback, deps){
-    if(lastCallbackDeps){
-        //如果上一次的依赖有的话，就要比较了
-        let same = deps.every((item,index) => item === lastCallbackDeps[index])
-        if(same){
-            lastCallbackDeps = deps
-            lastCallback = initalCallback
-        }else{
-            
-        }
+function useMemo(callback, deps){
+    if(hookStates[hookIndex]){
+      //如果有值的话
+      let [lastMemo, lastMemoDeps] = hookStates[hookIndex]
+      //根据依赖判断状态是否发生变化
+      let same = deps.every((item,index) => item === lastMemoDeps[index])
+      if(same){
+        //如果一样的话就直接返回老的状态
+        hookIndex++;
+        return lastMemo
+      }else{
+        //否则返回新的状态
+        let memo = callback()
+        hookStates[hookIndex++] = [memo, deps]
+        return memo
+      }
     }else{
-        lastCallbackDeps = deps
-        lastCallback = initalCallback
+      let memo = callback()
+      hookStates[hookIndex++] = [memo, deps]
+      return memo
     }
-    return lastCallback
+}
+/**
+ * 用于减少函数创建的次数，缓存函数
+ * @param {*} callback 函数
+ * @param {*} deps 依赖项
+ */
+function useCallback(callback, deps){
+  if(hookStates[hookIndex]){
+    //如果老的依赖有值的话，就对比依赖
+    let [lastCallback, lastCallbackDeps] = hookStates[hookIndex]
+
+    let same = deps.every((item, index) => item===lastCallbackDeps[index])
+
+    if(same){
+      //如果依赖不变，就返回老的state
+      hookIndex++
+      return lastCallback
+    }else{
+      hookStates[hookIndex++] = [callback, deps]
+      return callback
+    }
+  }else{
+    hookStates[hookIndex++] = [callback, deps]
+    return callback
+  }
 }
 /**
  * 性能优化：减少渲染次数
@@ -58,25 +93,26 @@ function Child(props){
  */
 let MemoChild = React.memo(Child)
 function App(){
-    let [name, setName] = React.useState('zf')
-    let [age, setAge] = React.useState(18)
+    let [name, setName] = useState('zf')
+    let [age, setAge] = useState(18)
     /**
      * 因为每次组件渲染的时候，变量都是全新的，所以即使变量的值没有变，但是
      * 引用已经变了，是一个全新的变量
      * 使用React.useMemo用于减少对象的创建次数，缓存对象
      */
-    let data = React.useMemo(() => ({age}), [age])
-    const handleClick = React.useCallback(() => {
+    let data = useMemo(() => ({age}), [age])
+    const handleClick = useCallback(() => {
         setAge(age + 1)
     }, [age])
     return (
         <div>
            <input value={name} onChange={event => setName(event.target.value)} />
-           <MemoChild data={data} />
+           <MemoChild data={data} handleClick={handleClick} />
         </div>
     )
 }
 function render() {
+    hookIndex = 0
     ReactDOM.render(<App />, document.getElementById('root'))
 }
 render()
