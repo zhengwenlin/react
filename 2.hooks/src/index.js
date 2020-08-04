@@ -18,12 +18,25 @@ function useState(initalState) {
    }
    return [state, setState]
 }
-let lastCallback, lastDeps;
+let lastCallback, lastCallbackDeps;
+/**
+ * 核心：缓存对象
+ * @param {*} initalCallback 
+ * @param {*} deps 依赖项 数组
+ */
 function useMemo(initalCallback, deps){
-    if(deps){
-
+    if(lastCallbackDeps){
+        //如果上一次的依赖有的话，就要比较了
+        let same = deps.every((item,index) => item === lastCallbackDeps[index])
+        if(same){
+            lastCallbackDeps = deps
+            lastCallback = initalCallback
+        }else{
+            
+        }
     }else{
-
+        lastCallbackDeps = deps
+        lastCallback = initalCallback
     }
     return lastCallback
 }
@@ -47,7 +60,11 @@ let MemoChild = React.memo(Child)
 function App(){
     let [name, setName] = React.useState('zf')
     let [age, setAge] = React.useState(18)
-
+    /**
+     * 因为每次组件渲染的时候，变量都是全新的，所以即使变量的值没有变，但是
+     * 引用已经变了，是一个全新的变量
+     * 使用React.useMemo用于减少对象的创建次数，缓存对象
+     */
     let data = React.useMemo(() => ({age}), [age])
     const handleClick = React.useCallback(() => {
         setAge(age + 1)
