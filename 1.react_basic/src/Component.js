@@ -1,3 +1,5 @@
+import {isFunction} from './utils.js';
+import { createDOM } from './react-dom.js'
 /**
  * 改变量用于控制组件的批量更新操作
  *（注意这里的维度是组件，不是组件中的状态）
@@ -36,8 +38,32 @@ class Updater {
     }
 
     updateComponent(){
-       let { state } = this.classInstance
+        let {classInstance,pendingStates}= this;//updater里的类组件实例和数组中的状态
+        //如果属性变化 了,或者 状态变化了
+        if(pendingStates.length>0){//如果有新状态,则需要列新,否则不更新
+
+            //从pendingStates中得新的状态
+            classInstance.state = this.getState();
+            //然后要重新渲染,进行更新
+            classInstance.forceUpdate();
+        }
     }
+    getState(){
+        let {classInstance,pendingStates}= this;//updater里的类组件实例和数组中的状态
+        let {state}= classInstance;// 组件实例中的老状态
+        let nextState =  pendingStates.reduce((nextState,partialState)=>{
+            if(isFunction(partialState)){//当partialState是一个函数的话
+                nextState=partialState(nextState);
+            }else{
+                nextState={...nextState,...partialState};//如果对象的话直接覆盖
+            }
+            return nextState;
+        },state);
+        pendingStates.length=0;
+        return nextState;
+    }
+
+    
 
 }
 
@@ -66,6 +92,12 @@ class Component {
         //调用更新器的addState方法，处理分状态
         this.$updater.addState(partialState)
     }
+    forceUpdate(){
+        let newVNode =  this.render();
+        let newDom = createDOM(newVNode) 
+        this.dom.parentNode.replaceChild(newDom, this.dom)
+        this.dom = newDom
+   }
 }
 //表示为一个类组件
 Component.prototype.isReactComponent = {}

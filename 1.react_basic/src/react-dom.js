@@ -14,7 +14,7 @@ function render(vdom, parentDOM) {
  * 将虚拟dom转成真实dom
  * @param {*} vdom 
  */
-function createDOM(vdom) {
+export function createDOM(vdom) {
   // vdom有两种情况，一种是普通的文本，
   // 第二种是通过createElement创建出来的React元素
   if (typeof vdom === 'string' || typeof vdom === 'number') {
@@ -73,11 +73,19 @@ function updateFunctionComponent(vdom) {
  * @param {*} vdom 
  */
 function updateClassComponent(vdom){
-  let { type, props } = vdom;
-  let instance = new type(props)
+  let { type: ClassComponent, props } = vdom;
+  let instance = new ClassComponent(props)
+
+  //实现context
+  if(ClassComponent.contextType){
+    instance.context = ClassComponent.contextType.Provider._value;
+  }
+
   let renderedVdom = instance.render()
   //递归解析
-  return createDOM(renderedVdom)
+  let dom = createDOM(renderedVdom)
+  instance.dom = dom
+  return dom
 }
 
 /**
