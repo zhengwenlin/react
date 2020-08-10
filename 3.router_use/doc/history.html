@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="root" style="width: 200px;height:200px;border:2px solid red"></div>
+    <button onclick="handleClick('/aa')">去/aa</button>
+    <button onclick="handleClick('/bb')">去/bb</button>
+    <button onclick="handleClick('/cc')">去/cc</button>
+    <script>
+
+       // history模式 的实现原理
+       function handleClick(to) {
+         history.pushState({}, null, to)
+       }
+
+       // 1. 当用户点击前进、后退按钮，或者调用api时，会触发onpopstate事件
+       window.onpopstate = function(e) {
+           console.log('popstate',e)
+           root.innerHTML = window.location.pathname
+       }
+       //自定义一个onpushstate事件（该事件会在调用pushState方法的时候触发）
+       window.onpushstate = function(e) {
+           console.log('pushstate', e)
+           root.innerHTML = e.pathname
+       };
+       // 2. 当用户调用pushstate方法的时候，也希望触发一个方法，但是onpopstate不支持该方法
+       // 思路： 重写pushstate （aop切片，实现自己的逻辑）
+       (function(history){
+          // 将老的pushState方法保存下来
+          let oldPushStateMethod = history.pushState
+
+          history.pushState = function(state, title, pathname){
+            //当用户调用pushState方法的时候，先走自己的方法，在自己的方法内部调用老的方法
+            oldPushStateMethod.apply(history, [...arguments])
+            window.onpushstate({state, pathname, type:'pushstate'})
+          }
+       })(window.history);
+    </script>
+</body>
+</html>
