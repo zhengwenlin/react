@@ -5,5 +5,5 @@
  * ?<=  反向肯定查找  前边肯定跟着什么
  * ?<=! 反向否定查找  前边肯定没跟着什么
  */
-let r = '1ac2b3c'.match(/\d(?=[a-z])([a-z]+?)/)
+let r = '1ac2b3c'.match(/\d(?=[a-z])/)
 console.log(r)
