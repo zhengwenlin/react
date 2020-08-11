@@ -18,13 +18,17 @@ export default function createBrowserHistory() {
     let listeners = []
     function listen(listener) {
         listeners.push(listener)
+
+        return () => {
+            listeners = listeners.filter(item => item !== listener)
+        }
     }
 
     function setState(nextState) {
         Object.assign(history, nextState)
         history.length = globalHistory.length
 
-        listeners.forEach(listener => listener())
+        listeners.forEach(listener => listener(nextState))
 
     }
     //push方法
