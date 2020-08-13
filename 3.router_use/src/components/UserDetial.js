@@ -1,5 +1,5 @@
 import React from 'react' 
-import User from '../utils'
+import {User} from '../utils'
 export default class UserDetial extends React.Component {
     state = {user:{}}
     render() {

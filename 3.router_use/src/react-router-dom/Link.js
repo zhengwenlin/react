@@ -9,7 +9,6 @@ export default function Link(props){
     let style = {
         cursor: 'pointer',
         textDecoration: 'underline',
-        color: 'blue'
     }
     return (
         <RouterContext.Consumer>

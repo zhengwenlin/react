@@ -1,13 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Route, Switch, Redirect, Link, NavLink, useHistory, useLocation, useParams } from 'react-router-dom'
-import Home from './components/Home.js'
-import About from './components/About.js'
-import Profile from './components/Profile.js'
-import Protected from './components/Protected'
-import User from './components/User.js'
-import Login from './components/Login.js';
-import NavHeader from './components/NavHeader.js';
+import { BrowserRouter as Router, Route, Switch, Redirect, Link, NavLink, useHistory, useLocation, useParams } from '../react-router-dom'
+import Home from '../components/Home.js'
+import About from '../components/About.js'
+import Profile from '../components/Profile.js'
+import Protected from '../components/Protected'
+import User from '../components/User.js'
+import Login from '../components/Login.js';
+import NavHeader from '../components/NavHeader.js';
 
 function App(props) {
     let history = useHistory()
@@ -23,20 +23,11 @@ function App(props) {
     </div>
   )
 }
-
-// ------动态路由-----------------
-function Count1(){
-  return (
-    <div>
-       Count1
-    </div>
-  )
-}
 ReactDOM.render(
   <Router>
     <div>
       <NavHeader title="zf架构" />
-      {/* <App title="zf" /> */}
+      <App title="zf" />
     <ul>
       <li>
         <NavLink

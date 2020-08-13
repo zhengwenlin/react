@@ -1,42 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Route, Switch, Redirect, Link, NavLink, useHistory, useLocation, useParams } from 'react-router-dom'
-import Home from './components/Home.js'
-import About from './components/About.js'
-import Profile from './components/Profile.js'
-import Protected from './components/Protected'
-import User from './components/User.js'
-import Login from './components/Login.js';
-import NavHeader from './components/NavHeader.js';
-
-function App(props) {
-    let history = useHistory()
-    let location = useLocation()
-    let params = useParams()
-  return (
-    <div>
-        <h4 style={{color:'red'}}>App: {props.title}</h4>
-        <div>history: {JSON.stringify(history, null, 2)}</div>
-        <div>location: {JSON.stringify(location, null, 2)}</div>
-        <div>params: {JSON.stringify(params, null, 2)}</div>
-        
-    </div>
-  )
-}
-
-// ------动态路由-----------------
-function Count1(){
-  return (
-    <div>
-       Count1
-    </div>
-  )
-}
+import { BrowserRouter as Router, Route, Switch, Redirect, Link, NavLink } from '../react-router-dom'
+import Home from '../components/Home.js'
+import About from '../components/About.js'
+import Profile from '../components/Profile.js'
+import Protected from '../components/Protected'
+import User from '../components/User.js'
+import Login from '../components/Login.js';
+import NavHeader from '../components/NavHeader.js';
 ReactDOM.render(
   <Router>
     <div>
       <NavHeader title="zf架构" />
-      {/* <App title="zf" /> */}
     <ul>
       <li>
         <NavLink

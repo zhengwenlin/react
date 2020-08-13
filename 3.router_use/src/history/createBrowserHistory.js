@@ -12,7 +12,7 @@
  */
 
 // history是一个对象，对象中有一些属性和方法
-
+let blcok;
 export default function createBrowserHistory() {
     let globalHistory = window.history
     let listeners = []
@@ -42,7 +42,15 @@ export default function createBrowserHistory() {
             pathname = path.pathname
             state = path.state
         }
-        globalHistory.pushState(state, null, path)
+        
+        if(blcok){
+            let result = window.confirm(blcok)
+            if(!result){
+                return
+            }
+        }
+
+        globalHistory.pushState(state, null, pathname)
         let location = { pathname, state }
         setState({ action, location })
     }
@@ -69,7 +77,13 @@ export default function createBrowserHistory() {
         goBack,
         goForward,
         listen,
-        push
+        push,
+        block(message) {
+            blcok = message
+            return function unblock() {
+                blcok = null
+            }
+        }
     }
 
     return history
