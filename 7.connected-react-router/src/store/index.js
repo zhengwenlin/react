@@ -1,7 +1,5 @@
-import React from 'react'
-import { createStore, combineReducers } from 'redux'
-import counter1 from './reducers/counter1'
+import { createStore, applyMiddleware } from 'redux'
+import reducers from './reducers'
+let store = applyMiddleware()(createStore)(reducers)
 
-let cominedReducers = combineReducers({ counter1 })
-
-let store = createStore(cominedReducers)
+export default store;
