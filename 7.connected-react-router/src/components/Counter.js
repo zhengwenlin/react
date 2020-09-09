@@ -1,21 +1,24 @@
-import React, { useEffect, useState } from 'react'
-import store from '../store/index'
-import { bindActionCreators } from 'redux'
+import React from 'react'
+import {connect} from 'react-redux'
 import actions from '../store/actions/counter'
-let bindedActions = bindActionCreators(actions, store.dispatch)
-export default function Counter(props) {
-  let [count, setCount] = useState(store.getState().counter.count)
-  // 订阅
-  useEffect(() => {
-    store.subscribe(() => {
-      setCount(store.getState().counter.count)
-    })
-  }, [])
+/**
+ * 使用connected-react-router的作用：
+ * 1. 可以在组件中跳转路由，比如：跳转到Home
+ * 2. 页面路径改变后，redux中的路由信息回同步更新
+ */
+function Counter(props) {
+  let { count } = props
   return (
     <div>
       <p>{count}</p>
-      <button onClick={() => bindedActions.add()}>+</button>
-      <button onClick={() => bindedActions.minus()}>-</button>
+      <button onClick={() => props.add()}>+</button>
+      <button onClick={() => props.minus()}>-</button>
+      <button onClick={() => props.goto('/')}>跳转到Home</button>
     </div>
   )
 }
+const mapStateToProps = (state) => state.counter
+export default connect(
+  mapStateToProps,
+  actions
+)(Counter)

@@ -4,13 +4,16 @@ import Counter from './components/Counter'
 import Home from './components/Home'
 import Profile from './components/Profile'
 // 使用路由
-import { BrowserRouter as Router, Link, Switch, Route, Redirect } from 'react-router-dom'
+import { Link, Switch, Route, Redirect } from 'react-router-dom'
 // 使用react-redux
 import { Provider } from 'react-redux'
 import store from './store'
+// 使用connected-react-router
+import { ConnectedRouter as Router } from 'connected-react-router'
+import history from './store/history'
 ReactDOM.render(
   <Provider store={store}>
-    <Router>
+    <Router history={history}>
       <div>
         <div><Link to="/">首页</Link></div>
         <div><Link to="/counter">Counter</Link></div>
